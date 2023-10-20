@@ -70,7 +70,7 @@ exports.signup = async (req, res) => {
 
 
 
-exports.signin = (req, res) => {
+exports.signin =(req, res) => {
   const { email, password } = req.body;
 
   User.findOne({ email }) 
@@ -82,18 +82,30 @@ exports.signin = (req, res) => {
           if (!user.authenticate(password)) {
               return res.status(401).json({ error: 'Email and Password do not match' });
           }
+          if (user.active==false) {
+            return res.status(401).json({ error: 'Sorry you need to activate your aacount first check your email' });
+        }
 
           
 
           const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
 
           res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
+
+
+
+        
+
+
           const { _id, name, email, role } = user;
           res.json({
               token,
               user: { _id, name, email, role }
 
           });
+
+
+         
 
       })
 
@@ -144,3 +156,55 @@ exports.reset = async (req, res) => {
       res.status(500).json({ error: 'Failed to reset user password' });
     }
   };
+
+
+
+
+
+  exports.checkuser = (req, res) => {
+    const { email } = req.body;
+  
+    User.findOne({ email }) 
+        .then(user => {
+            if (!user) {
+                return res.status(400).json({ error: 'User not found' });
+            }
+  
+        
+            const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
+  
+            res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
+
+
+
+            const mailOptions = {
+                from: 'Marhaba Delivery',
+                to: user.email, // Use the user's email
+                subject: 'Hello Dear '+user.name,
+                html:`<a href="http://localhost:3000/api/users/forgetpassword/${token}">Reset Password</a>`
+            
+            }
+            // Send the email here
+             sendEmail(mailOptions);
+
+
+            const { _id, name, email, role } = user;
+            res.json({
+                token,
+                user: { _id, name, email, role }
+  
+            });
+
+
+
+
+
+
+  
+        })
+  
+        .catch(err => {
+            console.log(err); // Handle errors properly
+            return res.status(500).json({ error: 'Internal server error' });
+        });
+  }

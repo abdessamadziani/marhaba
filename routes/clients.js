@@ -1,5 +1,5 @@
 const express= require('express')
-const {salam,signup,signin,signout,activeTrue, getOneUser,reset}= require('../controllers/clientController')
+const {salam,signup,signin,signout,activeTrue, getOneUser,reset,checkuser,forgetpassword}= require('../controllers/clientController')
 const {userSignupValidator }= require('../middleWares/userValidator')
 const { requireSignIn,isAuth }= require('../middleWares/auth')
 const { userById,getUser } = require('../middleWares/user')
@@ -19,6 +19,13 @@ router.param('id',getUser)
 
 router.get('/profile/:token',activeTrue)
 router.param('token',userById)
+
+router.post('/checkuser',checkuser)
+
+router.get('/forgetpassword/:token',reset)
+router.param('token',userById)
+
+
 
 
 
