@@ -36,6 +36,14 @@ exports.activeTrue = (req, res) => {
 
 exports.signup = async (req, res) => {
     const user = new User(req.body);
+    const { email, password } = user;
+
+    const emailExists = await User.findOne({ email });
+
+    if (emailExists) return res.status(400).json({ error: 'Email already exists' });
+
+
+
 
     try {
         const savedUser = await user.save();
@@ -57,7 +65,8 @@ exports.signup = async (req, res) => {
         res.status(200).json({ message: 'User registration successful', user: savedUser });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Failed to send email');
+        res.status(500)
+        res.send('Failed to send email');
     }
 }
 
@@ -70,51 +79,85 @@ exports.signup = async (req, res) => {
 
 
 
-exports.signin =(req, res) => {
-  const { email, password } = req.body;
+// exports.signin =(req, res) => {
+//   const { email, password } = req.body;
 
-  User.findOne({ email }) 
-      .then(user => {
-          if (!user) {
-              return res.status(400).json({ error: 'User not found' });
-          }
+//   User.findOne({ email }) 
+//       .then(user => {
+//           if (!user) {
+//               return res.status(400).json({ error: 'User not found' });
+//           }
 
-          if (!user.authenticate(password)) {
-              return res.status(401).json({ error: 'Email and Password do not match' });
-          }
-          if (user.active==false) {
-            return res.status(401).json({ error: 'Sorry you need to activate your aacount first check your email' });
-        }
+//           if (!user.authenticate(password)) {
+//               return res.status(401).json({ error: 'Email and Password do not match' });
+//           }
+//           if (user.active==false) {
+//             return res.status(401).json({ error: 'Sorry you need to activate your aacount first check your email' });
+//         }
 
           
 
-          const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
+//           const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
 
-          res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
-
-
-
-        
+//           res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
 
 
-          const { _id, name, email, role } = user;
-          res.json({
-              token,
-              user: { _id, name, email, role }
 
-          });
+//           const { _id, name, email, role } = user;
+//           res.json({
+//               token,
+//               user: { _id, name, email, role }
+
+//           });
 
 
          
 
-      })
+//       })
 
-      .catch(err => {
-          console.log(err); // Handle errors properly
-          return res.status(500).json({ error: 'Internal server error' });
+//       .catch(err => {
+//           console.log(err); // Handle errors properly
+//           return res.status(500).json({ error: 'Internal server error' });
+//       });
+// }
+
+
+
+
+exports.signin = async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+      }
+  
+      if (!user.authenticate(password)) {
+        return res.status(401).json({ error: 'Email and Password do not match' });
+      }
+  
+      if (user.active === false) {
+        return res.status(401).json({ error: 'Sorry, you need to activate your account first. Check your email.' });
+      }
+  
+      const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
+  
+      res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
+  
+      const { _id, name, email, role } = user;
+      res.json({
+        token,
+        user: { _id, name, email, role },
       });
-}
-
+  
+    } catch (err) {
+      console.log(err); // Handle errors properly
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
 
 
 
