@@ -8,7 +8,6 @@ const { userById,getUser } = require('../middleWares/user')
 const router = express.Router()
 
 
-
 router.get('/',salam)
 // router.get('/:token',activeTrue)
 router.post('/signup',userSignupValidator,signup)
