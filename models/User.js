@@ -30,6 +30,8 @@ const userSchema = new Schema({
     image: {
             type: String,
             trim: true,
+            default: 'empty.png',
+
  
            },
     role: {

@@ -8,10 +8,12 @@ const { userById,getUser } = require('../middleWares/user')
 const router = express.Router()
 
 
+
 router.get('/',salam)
 // router.get('/:token',activeTrue)
-router.post('/signup',userSignupValidator,signup)
-router.get('/signin',signin)
+ router.post('/signup',userSignupValidator,signup)
+
+router.post('/signin',signin)
 router.get('/signout',signout)
 router.get('/reset/:id',requireSignIn,isAuth,reset)
 router.param('id',getUser)
@@ -21,7 +23,7 @@ router.param('token',userById)
 
 router.post('/checkuser',checkuser)
 
-router.get('/forgetpassword/:token',reset)
+router.post('/forgetpassword/:token',reset)
 router.param('token',userById)
 
 

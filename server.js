@@ -4,15 +4,16 @@ const app = express();
 const connectDB = require('./server/config/db');
 const clientRoutes = require('./routes/clients');
 const expressValidator = require('express-validator');
-
+const cors=require('cors')
 const cookieParser = require('cookie-parser');
-const port = 3000;
+const port = 4000;
 
 connectDB();
 
 app.use(express.json());
 
 app.use(expressValidator());
+app.use(cors())
 
 
 
