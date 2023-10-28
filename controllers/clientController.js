@@ -43,6 +43,7 @@ exports.signup = async (req, res) => {
 
         const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
         res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
+
         const link = `http://localhost:3000/activate-email/${token}`;
         const mailOptions = {
             from: 'abdessamad',
@@ -58,6 +59,7 @@ exports.signup = async (req, res) => {
 
     
         res.status(200).json({ message: 'User registration successful', user: savedUser });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to send email' });
@@ -94,6 +96,7 @@ exports.signin =(req, res) => {
           const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
 
           res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
+
 
 
 
