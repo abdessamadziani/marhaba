@@ -19,7 +19,6 @@ exports.activeTrue = (req, res) => {
                 res.status(500).json({ error: 'Failed to update user account status' });
             } else {
                 res.status(200).json({ message: 'Token verified and user account is now active', userId: updatedUser._id });
-                //  return({ redirectUrl: 'http://localhost:3000/signin' });
             }
         })
         .catch(updateErr => {
