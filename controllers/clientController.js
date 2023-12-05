@@ -5,9 +5,7 @@ const sendEmail= require('../utils/sendEmail')
 
 const jwt=require('jsonwebtoken')
 
-exports.salam = (req, res) => {
-    res.send({ message: "client module" });
-}
+
 
 
 exports.activeTrue = (req, res) => {
@@ -36,18 +34,33 @@ exports.activeTrue = (req, res) => {
 
 exports.signup = async (req, res) => {
     const user = new User(req.body);
+//     if(!req.body.name)
+//         {
+//             return res.status(400).json({ message: 'username is not allowed to be empty' });
+
+//         }
+//     if(!req.body.email)
+//         {
+//             return res.status(400).json({ message: 'email is not allowed to be empty'});
+
+//         }  
+//    if (req.body.role !== "client" || req.body.role !== "livreur") {
+//             return res.status(400).json({ message: 'role must be client OR livreur' });
+//         }
+           
+
 
     try {
         const savedUser = await user.save();
 
-        const token = jwt.sign({ _id: user._id }, process.env.jwt_SECRET);
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
         res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
 
         const link = `http://localhost:3000/activate-email/${token}`;
         const mailOptions = {
-            from: 'abdessamad',
+            from: 'Marhaba Delivery',
             to: savedUser.email, // Use the user's email
-            subject: 'Hello',
+            subject: 'Hello Dear '+user.name,
             // html:`<a href="http://localhost:4000/api/users/profile/${token}">Active Account Now</a>`
             html:`<a href=${link}>Active Account Now</a>`
 
@@ -57,7 +70,7 @@ exports.signup = async (req, res) => {
         await sendEmail(mailOptions);
 
     
-        res.status(200).json({ message: 'User registration successful', user: savedUser });
+        res.status(200).json({ message: 'User registration successful please verify your email', user: savedUser });
 
     } catch (error) {
         console.error(error);
@@ -77,15 +90,31 @@ exports.signup = async (req, res) => {
 exports.signin =(req, res) => {
   const { email, password } = req.body;
 
-  User.findOne({ email }) 
-      .then(user => {
-          if (!user) {
-              return res.status(400).json({ error: 'User not found' });
+   if (!email && password) {
+            return res.status(400).json({ message: 'email is not allowed to be empty' });
+          }
+          if (email && !password) {
+            return res.status(400).json({ message: 'Invalid password format. It should be alphanumeric and between 3 to 30 characters',
+             });
           }
 
+
+  User.findOne({ email }) 
+      .then(user => {
+
+        if (!user) {
+            return res.status(400).json({ error: 'User not found' });
+        }
+     
+
+        
+
           if (!user.authenticate(password)) {
-              return res.status(401).json({ error: 'Email and Password do not match' });
+              return res.status(401).json({ message: 'Email and Password do not match' });
           }
+
+       
+
           if (user.active==false) {
             return res.status(401).json({ error: 'Sorry you need to activate your aacount first check your email' });
         }
@@ -96,10 +125,6 @@ exports.signin =(req, res) => {
 
           res.cookie('token', token, { expires: new Date(Date.now() + 600000) });
 
-
-
-
-        
 
 
           const { _id, name, email, role } = user;

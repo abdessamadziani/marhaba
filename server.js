@@ -1,6 +1,12 @@
+
+
 require('dotenv').config();
 const express = require('express');
+
 const app = express();
+const swagger = require('./swagger');
+
+swagger(app)
 const connectDB = require('./server/config/db');
 const clientRoutes = require('./routes/clients');
 const expressValidator = require('express-validator');
